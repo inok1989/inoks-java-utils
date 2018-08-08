@@ -10,12 +10,10 @@ node {
         }
         stage('Build') {
             echo "My branch is: ${env.BRANCH_NAME}"
-            dir('app') {
-                withSonarQubeEnv('localhostSonarQube') {
-                    bat "gradlew.bat --info clean build sonarqube -Dinoks.java.utils.version=${version}"
-                }
-                currentBuild.description = version
+            withSonarQubeEnv('localhostSonarQube') {
+                bat "gradlew.bat --info clean build sonarqube -Dinoks.java.utils.version=${version}"
             }
+            currentBuild.description = version
         }
         stage('Archive') {
             archiveArtifacts artifacts: 'build/**/*.jar'
