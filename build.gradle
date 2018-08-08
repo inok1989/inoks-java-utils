@@ -1,0 +1,64 @@
+plugins {
+    id "org.sonarqube" version "2.6.1"
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'de.kgrupp'
+def versionStr = System.properties['inoks.java.utils.version']
+version = !versionStr ? "LOCAL-VERSION" : versionStr
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven {
+        url "http://localhost:8081/repository/maven-public/"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.4.0'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.9.6'
+
+    compileOnly 'org.projectlombok:lombok:1.18.0'
+
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.2.0'
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.2.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectKey', 'inoks-java-utils'
+        property 'sonar.projectName', 'inoks-java-utils'
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+
+def nexusUrl = project.hasProperty('nexusUrl') ? nexusUrl : 'http://localhost:8081'
+def nexusUser = project.hasProperty('nexusUsername') ? nexusUsername : 'admin'
+def nexusPw = project.hasProperty('nexusPassword') ? nexusPassword : 'admin123'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "${nexusUrl}/repository/maven-releases/") {
+                authentication(userName: nexusUser, password: nexusPw)
+            }
+            snapshotRepository(url: "${nexusUrl}/repository/maven-snapshots") {
+                authentication(userName: nexusUser, password: nexusPw)
+            }
+        }
+    }
+}
