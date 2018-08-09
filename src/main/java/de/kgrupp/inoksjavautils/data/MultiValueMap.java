@@ -48,16 +48,16 @@ public class MultiValueMap<K, V, C extends Collection<V>> {
                                                                                                                     Function<T, V> valueMapper,
                                                                                                                     Supplier<M> mapSupplier) {
         BiConsumer<M, T> accumulator = (map, element) -> map.put(keyMapper.apply(element), valueMapper.apply(element));
-        return Collector.of(mapSupplier, accumulator, merger());
+        return Collector.of(mapSupplier, accumulator, merger(mapSupplier));
     }
 
     private static <K, V, C extends Collection<V>, M extends MultiValueMap<K, V, C>>
-    BinaryOperator<M> merger() {
+    BinaryOperator<M> merger(Supplier<M> mapSupplier) {
         return (m1, m2) -> {
-            for (Map.Entry<K, C> e : m2.entrySet()) {
-                e.getValue().forEach(value -> m1.put(e.getKey(), value));
-            }
-            return m1;
+            M result = mapSupplier.get();
+            m1.entrySet().forEach(entry -> entry.getValue().forEach(value -> result.put(entry.getKey(), value)));
+            m2.entrySet().forEach(entry -> entry.getValue().forEach(value -> result.put(entry.getKey(), value)));
+            return result;
         };
     }
 }
