@@ -1,4 +1,4 @@
-package de.kgrupp.inoksjavautils.io;
+package de.kgrupp.inoksjavautils.transform;
 
 import de.kgrupp.inoksjavautils.exception.UnCheckedException;
 

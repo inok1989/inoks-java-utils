@@ -1,4 +1,4 @@
-package de.kgrupp.inoksjavautils;
+package de.kgrupp.inoksjavautils.transform;
 
 import java.nio.charset.StandardCharsets;
 

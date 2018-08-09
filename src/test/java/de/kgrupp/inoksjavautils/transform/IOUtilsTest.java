@@ -1,14 +1,14 @@
-package de.kgrupp.inoksjavautils.io;
+package de.kgrupp.inoksjavautils.transform;
 
 import de.kgrupp.inoksjavautils.exception.UnCheckedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IOUtilsTest {
 

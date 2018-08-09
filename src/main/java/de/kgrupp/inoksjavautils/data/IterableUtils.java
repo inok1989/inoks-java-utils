@@ -1,4 +1,4 @@
-package de.kgrupp.inoksjavautils;
+package de.kgrupp.inoksjavautils.data;
 
 import java.util.Iterator;
 import java.util.Optional;

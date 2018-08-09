@@ -1,7 +1,6 @@
-package de.kgrupp.inoksjavautils;
+package de.kgrupp.inoksjavautils.transform;
 
 import de.kgrupp.inoksjavautils.exception.UnCheckedException;
-import de.kgrupp.inoksjavautils.io.IOUtils;
 import lombok.extern.java.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -52,7 +51,7 @@ public final class XmlUtils {
             Unmarshaller unmarshaller = jc.createUnmarshaller();
             JAXBElement<T> jb = unmarshaller.unmarshal(node, clazz);
             return Optional.of(jb.getValue());
-        } catch (JAXBException e) {
+        } catch (JAXBException | IllegalArgumentException e) {
             throw new UnCheckedException(e);
         }
     }

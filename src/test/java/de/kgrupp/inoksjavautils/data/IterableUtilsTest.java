@@ -1,4 +1,4 @@
-package de.kgrupp.inoksjavautils;
+package de.kgrupp.inoksjavautils.data;
 
 import org.junit.jupiter.api.Test;
 

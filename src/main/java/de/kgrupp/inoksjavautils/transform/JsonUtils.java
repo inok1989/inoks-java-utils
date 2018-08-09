@@ -1,11 +1,10 @@
-package de.kgrupp.inoksjavautils;
+package de.kgrupp.inoksjavautils.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import de.kgrupp.inoksjavautils.exception.UnCheckedException;
-import de.kgrupp.inoksjavautils.io.IOUtils;
 import lombok.extern.java.Log;
 
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.util.Optional;
 
 @Log
 public final class JsonUtils {
+
 
     private JsonUtils() {
         // utility class
