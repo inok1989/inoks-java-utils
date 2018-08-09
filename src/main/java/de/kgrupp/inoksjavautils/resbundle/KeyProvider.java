@@ -1,4 +1,4 @@
-package de.kgrupp.inoksjavautils.constant;
+package de.kgrupp.inoksjavautils.resbundle;
 
 public interface KeyProvider {
 

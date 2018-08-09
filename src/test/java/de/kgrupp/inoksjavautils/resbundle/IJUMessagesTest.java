@@ -1,15 +1,15 @@
-package de.kgrupp.inoksjavautils.nl;
+package de.kgrupp.inoksjavautils.resbundle;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class AbstractMessagesTest {
+class IJUMessagesTest {
 
-    private static class MessagesTest extends AbstractMessages {
+    private static class MessagesTest extends IJUMessages {
 
         protected MessagesTest() {
-            super("de.kgrupp.inoksjavautils.MessagesTest");
+            super("de.kgrupp.inoksjavautils.resbundle.MessagesTest");
         }
     }
 
