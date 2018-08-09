@@ -25,6 +25,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.9.6'
 
     compileOnly 'org.projectlombok:lombok:1.18.0'
+    testCompileOnly 'org.projectlombok:lombok:1.18.0'
 
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.2.0'
     testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.2.0'
