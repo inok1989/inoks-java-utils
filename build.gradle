@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    compile group: 'de.kgrupp', name: 'inoks-java-monads', version: '0.3.0.1'
+
     compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
 
     compile 'javax.xml.bind:jaxb-api:2.2.11'

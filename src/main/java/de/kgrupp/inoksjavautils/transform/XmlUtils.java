@@ -1,6 +1,7 @@
 package de.kgrupp.inoksjavautils.transform;
 
-import de.kgrupp.inoksjavautils.exception.UnCheckedException;
+import de.kgrupp.monads.result.Result;
+import de.kgrupp.monads.result.ResultUtils;
 import lombok.extern.java.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -19,9 +20,8 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Log
@@ -31,64 +31,62 @@ public final class XmlUtils {
         // utility class
     }
 
-    public static <T> Optional<T> unmarshalFirst(String nodeName, String xmlString, Class<T> clazz) {
-        return unmarshalFirst(nodeName, IOUtils.stringToInputStream(xmlString), clazz);
+    public static <T> Result<T> unmarshalFirst(String nodeName, String xmlString, Class<T> clazz) {
+        return IOUtils.stringToInputStream(xmlString).flatMap(inputStream -> unmarshalFirst(nodeName, inputStream, clazz));
     }
 
-    public static <T> Optional<T> unmarshalFirst(String nodeName, InputStream xmlInputStream, Class<T> clazz) {
-        Document doc = parse(xmlInputStream);
-        Node node = doc.getElementsByTagName(nodeName).item(0);
-        if (node == null) {
-            log.log(Level.INFO, () -> "The node '" + nodeName + "' was not found.");
-            return Optional.empty();
-        }
-        return unmarshalFirst(node, clazz);
+    public static <T> Result<T> unmarshalFirst(String nodeName, InputStream xmlInputStream, Class<T> clazz) {
+        return parse(xmlInputStream).flatMap(doc -> {
+            Node node = doc.getElementsByTagName(nodeName).item(0);
+            if (node == null) {
+                return Result.fail("The node '" + nodeName + "' was not found.");
+            }
+            return unmarshalFirst(node, clazz);
+        });
     }
 
-    private static <T> Optional<T> unmarshalFirst(Node node, Class<T> clazz) {
+    private static <T> Result<T> unmarshalFirst(Node node, Class<T> clazz) {
         try {
             JAXBContext jc = JAXBContext.newInstance(clazz);
             Unmarshaller unmarshaller = jc.createUnmarshaller();
             JAXBElement<T> jb = unmarshaller.unmarshal(node, clazz);
-            return Optional.of(jb.getValue());
+            return Result.of(jb.getValue());
         } catch (JAXBException | IllegalArgumentException e) {
-            throw new UnCheckedException(e);
+            return Result.fail(e);
         }
     }
 
-    public static Document parse(InputStream xmlInputStream) {
+    public static Result<Document> parse(InputStream xmlInputStream) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse(xmlInputStream);
+            return Result.of(builder.parse(xmlInputStream));
         } catch (IOException | SAXException | ParserConfigurationException e) {
-            throw new UnCheckedException(e);
+            return Result.fail(e);
         }
     }
 
-    public static Document createEmptyDocument() {
+    public static Result<Document> createEmptyDocument() {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            return docBuilder.newDocument();
+            return Result.of(docBuilder.newDocument());
         } catch (ParserConfigurationException e) {
-            throw new UnCheckedException(e);
+            return Result.fail(e);
         }
     }
 
-    public static <T> List<T> unmarshalEach(String nodeName, String xmlstring, Class<T> clazz) {
-        return unmarshalEach(nodeName, IOUtils.stringToInputStream(xmlstring), clazz);
+    public static <T> Result<List<T>> unmarshalEach(String nodeName, String xmlstring, Class<T> clazz) {
+        return IOUtils.stringToInputStream(xmlstring).flatMap(inputStream -> unmarshalEach(nodeName, inputStream, clazz));
     }
 
-    public static <T> List<T> unmarshalEach(String nodeName, InputStream xmlInputStream, Class<T> clazz) {
-        Document doc = parse(xmlInputStream);
-        NodeList nodeList = doc.getElementsByTagName(nodeName);
-        return StreamSupport.stream(toIterable(nodeList).spliterator(), false)
-                .map(node -> unmarshalFirst(node, clazz))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(
-                        Collectors.toList());
+    public static <T> Result<List<T>> unmarshalEach(String nodeName, InputStream xmlInputStream, Class<T> clazz) {
+        return parse(xmlInputStream).flatMap(doc -> {
+            NodeList nodeList = doc.getElementsByTagName(nodeName);
+            Stream<Result<T>> streamResult = StreamSupport.stream(toIterable(nodeList).spliterator(), false)
+                    .map(node -> unmarshalFirst(node, clazz));
+            return ResultUtils.flatCombine(streamResult).map(resultStream -> resultStream.collect(Collectors.toList()));
+        });
     }
 
     public static Iterable<Node> toIterable(NodeList nodeList) {

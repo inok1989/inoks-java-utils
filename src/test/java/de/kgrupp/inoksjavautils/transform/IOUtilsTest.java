@@ -1,6 +1,6 @@
 package de.kgrupp.inoksjavautils.transform;
 
-import de.kgrupp.inoksjavautils.exception.UnCheckedException;
+import de.kgrupp.monads.result.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IOUtilsTest {
 
@@ -42,15 +42,16 @@ class IOUtilsTest {
 
     @Test
     void inputStreamToString() {
-        String result = IOUtils.inputStreamToString(stream);
-        assertEquals(STRING, result);
+        Result<String> result = IOUtils.inputStreamToString(stream);
+        assertEquals(Result.of(STRING), result);
     }
 
     @Test
     void stringToInputStream() throws IOException {
-        InputStream result = IOUtils.stringToInputStream(STRING);
-        while(true) {
-            int actual = result.read();
+        Result<InputStream> result = IOUtils.stringToInputStream(STRING);
+        assertTrue(result.isSuccess());
+        while (true) {
+            int actual = result.getObject().read();
             int expect = stream.read();
             assertEquals(expect, actual);
             if (0 <= expect) {
@@ -61,6 +62,7 @@ class IOUtilsTest {
 
     @Test
     void inputStreamToStringFails() {
-        assertThrows(UnCheckedException.class, () -> IOUtils.inputStreamToString(failingStream));
+        Result<String> result = IOUtils.inputStreamToString(failingStream);
+        assertTrue(result.isInternalError());
     }
 }

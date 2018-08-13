@@ -1,15 +1,14 @@
 package de.kgrupp.inoksjavautils.transform;
 
-import de.kgrupp.inoksjavautils.exception.UnCheckedException;
+import com.fasterxml.jackson.core.io.JsonEOFException;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import de.kgrupp.monads.result.Result;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonUtilsTest {
@@ -27,34 +26,36 @@ class JsonUtilsTest {
 
     @Test
     void convertToJsonString() {
-        final String result = JsonUtils.convertToJsonString(EXAMPLE);
-        assertEquals(EXAMPLE_STRING, result);
+        Result<String> result = JsonUtils.convertToJsonString(EXAMPLE);
+        assertEquals(Result.of(EXAMPLE_STRING), result);
     }
 
     @Test
     void convertToJsonStringFails() {
-        assertThrows(UnCheckedException.class, () -> JsonUtils.convertToJsonString(new Object() {
+        final Result<String> result = JsonUtils.convertToJsonString(new Object() {
             // no fields and converting should fail
-        }));
+        });
+        assertTrue(result.isInternalError());
+        assertEquals(InvalidDefinitionException.class, result.getThrowable().getClass());
     }
 
     @Test
     void convertToObject() {
-        final Optional<MyClass> result = JsonUtils.convertToObject(EXAMPLE_STRING, MyClass.class);
-        assertTrue(result.isPresent());
-        assertEquals(EXAMPLE, result.get());
+        final Result<MyClass> result = JsonUtils.convertToObject(EXAMPLE_STRING, MyClass.class);
+        assertEquals(Result.of(EXAMPLE), result);
     }
 
     @Test
     void convertToObjectFail() {
-        assertThrows(UnCheckedException.class, () -> JsonUtils.convertToObject("{", MyClass.class));
+        final Result<MyClass> result = JsonUtils.convertToObject("{", MyClass.class);
+        assertTrue(result.isInternalError());
+        assertEquals(JsonEOFException.class, result.getThrowable().getClass());
     }
 
     @Test
     void convertToObjectAsInputStream() {
-        final Optional<MyClass> result = JsonUtils.convertToObject(IOUtils.stringToInputStream(EXAMPLE_STRING), MyClass.class);
-        assertTrue(result.isPresent());
-        assertEquals(EXAMPLE, result.get());
+        final Result<MyClass> result = JsonUtils.convertToObject(IOUtils.stringToInputStream(EXAMPLE_STRING).getObject(), MyClass.class);
+        assertEquals(Result.of(EXAMPLE), result);
     }
 
     @Test

@@ -4,12 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
-import de.kgrupp.inoksjavautils.exception.UnCheckedException;
+import de.kgrupp.monads.result.Result;
 import lombok.extern.java.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 @Log
 public final class JsonUtils {
@@ -19,25 +18,25 @@ public final class JsonUtils {
         // utility class
     }
 
-    public static String convertToJsonString(Object object) {
+    public static Result<String> convertToJsonString(Object object) {
         ObjectMapper mapper = getObjectMapper();
         try {
-            return mapper.writeValueAsString(object);
+            return Result.of(mapper.writeValueAsString(object));
         } catch (JsonProcessingException e) {
-            throw new UnCheckedException(e);
+            return Result.fail(e);
         }
     }
 
-    public static <T> Optional<T> convertToObject(InputStream jsonInputStream, Class<T> clazz) {
-        return convertToObject(IOUtils.inputStreamToString(jsonInputStream), clazz);
+    public static <T> Result<T> convertToObject(InputStream jsonInputStream, Class<T> clazz) {
+        return IOUtils.inputStreamToString(jsonInputStream).flatMap(jsonString -> convertToObject(jsonString, clazz));
     }
 
-    public static <T> Optional<T> convertToObject(String jsonString, Class<T> clazz) {
+    public static <T> Result<T> convertToObject(String jsonString, Class<T> clazz) {
         ObjectMapper mapper = getObjectMapper();
         try {
-            return Optional.ofNullable(mapper.readValue(jsonString, clazz));
+            return Result.of(mapper.readValue(jsonString, clazz));
         } catch (IOException e) {
-            throw new UnCheckedException(e);
+            return Result.fail(e);
         }
     }
 

@@ -1,6 +1,6 @@
 package de.kgrupp.inoksjavautils.transform;
 
-import de.kgrupp.inoksjavautils.exception.UnCheckedException;
+import de.kgrupp.monads.result.Result;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -8,13 +8,13 @@ import lombok.ToString;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -44,44 +44,51 @@ class XmlUtilsTest {
 
     @Test
     void unmarshalFirst() {
-        Optional<MyClass> result = XmlUtils.unmarshalFirst("my", EXAMPLE_STRING, MyClass.class);
-        assertTrue(result.isPresent());
-        assertEquals(EXAMPLE1, result.get());
+        Result<MyClass> result = XmlUtils.unmarshalFirst("my", EXAMPLE_STRING, MyClass.class);
+        assertEquals(Result.of(EXAMPLE1), result);
     }
 
     @Test
     void unmarshalFirstNotFound() {
-        Optional<MyClass> result = XmlUtils.unmarshalFirst("missing", EXAMPLE_STRING, MyClass.class);
-        assertFalse(result.isPresent());
+        Result<MyClass> result = XmlUtils.unmarshalFirst("missing", EXAMPLE_STRING, MyClass.class);
+        assertTrue(result.isError());
+        assertFalse(result.isInternalError());
     }
 
     @Test
     void unmarshalFirstInvalid() {
-        assertThrows(UnCheckedException.class, () -> XmlUtils.unmarshalFirst("my", EXAMPLE_STRING + "INVALID", MyClass.class));
+        Result<MyClass> result = XmlUtils.unmarshalFirst("my", EXAMPLE_STRING + "INVALID", MyClass.class);
+        assertTrue(result.isInternalError());
+        assertEquals(SAXParseException.class, result.getThrowable().getClass());
     }
 
     @Test
     void unmarshalFirstInvalidType() {
-        assertThrows(UnCheckedException.class, () -> XmlUtils.unmarshalFirst("my", EXAMPLE_STRING.replace("1.0", "TEST"), MyClass.class));
+        final Result<MyClass> result = XmlUtils.unmarshalFirst("my", EXAMPLE_STRING.replace("1.0", "TEST"), MyClass.class);
+        assertTrue(result.isInternalError());
+        assertEquals(NumberFormatException.class, result.getThrowable().getClass());
     }
 
     @Test
     void createEmptyDocument() {
-        final Document emptyDocument = XmlUtils.createEmptyDocument();
-        assertEquals(0, emptyDocument.getChildNodes().getLength());
+        Result<Document> result = XmlUtils.createEmptyDocument();
+        assertTrue(result.isSuccess());
+        assertEquals(0, result.getObject().getChildNodes().getLength());
     }
 
     @Test
     void unmarshalEach() {
-        final List<MyClass> result = XmlUtils.unmarshalEach("my", EXAMPLE_STRING, MyClass.class);
-        assertEquals(2, result.size());
-        assertEquals(EXAMPLE1, result.get(0));
-        assertEquals(EXAMPLE2, result.get(1));
+        final Result<List<MyClass>> result = XmlUtils.unmarshalEach("my", EXAMPLE_STRING, MyClass.class);
+        result.consumeOrFail(list -> {
+            assertEquals(2, list.size());
+            assertEquals(EXAMPLE1, list.get(0));
+            assertEquals(EXAMPLE2, list.get(1));
+        });
     }
 
     @Test
     void toIterable() {
-        final Document document = XmlUtils.parse(IOUtils.stringToInputStream(EXAMPLE_STRING));
+        final Document document = XmlUtils.parse(IOUtils.stringToInputStream(EXAMPLE_STRING).getObject()).getObject();
         final Iterable<Node> nodes = XmlUtils.toIterable(document.getElementsByTagName("my"));
         final List<Node> list = StreamSupport.stream(nodes.spliterator(), false).collect(Collectors.toList());
         assertEquals(2, list.size());
@@ -91,7 +98,7 @@ class XmlUtilsTest {
 
     @Test
     void toIterableBreakIterator() {
-        final Document document = XmlUtils.parse(IOUtils.stringToInputStream(EXAMPLE_STRING));
+        final Document document = XmlUtils.parse(IOUtils.stringToInputStream(EXAMPLE_STRING).getObject()).getObject();
         final Iterable<Node> nodes = XmlUtils.toIterable(document.getElementsByTagName("my"));
 
         final Iterator<Node> iterator = nodes.iterator();
