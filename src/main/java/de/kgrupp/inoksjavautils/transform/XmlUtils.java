@@ -66,16 +66,6 @@ public final class XmlUtils {
         }
     }
 
-    public static Result<Document> createEmptyDocument() {
-        try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            return Result.of(docBuilder.newDocument());
-        } catch (ParserConfigurationException e) {
-            return Result.fail(e);
-        }
-    }
-
     public static <T> Result<List<T>> unmarshalEach(String nodeName, String xmlstring, Class<T> clazz) {
         return IOUtils.stringToInputStream(xmlstring).flatMap(inputStream -> unmarshalEach(nodeName, inputStream, clazz));
     }

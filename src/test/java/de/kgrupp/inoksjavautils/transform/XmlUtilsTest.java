@@ -70,13 +70,6 @@ class XmlUtilsTest {
     }
 
     @Test
-    void createEmptyDocument() {
-        Result<Document> result = XmlUtils.createEmptyDocument();
-        assertTrue(result.isSuccess());
-        assertEquals(0, result.getObject().getChildNodes().getLength());
-    }
-
-    @Test
     void unmarshalEach() {
         final Result<List<MyClass>> result = XmlUtils.unmarshalEach("my", EXAMPLE_STRING, MyClass.class);
         result.consumeOrFail(list -> {
