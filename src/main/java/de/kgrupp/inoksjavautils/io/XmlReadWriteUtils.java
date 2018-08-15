@@ -68,7 +68,7 @@ public final class XmlReadWriteUtils {
             DOMSource source = new DOMSource(document);
             StreamResult result = new StreamResult(file);
             transformer.transform(source, result);
-            return Result.emptySuccess("Parsing successfull");
+            return Result.emptySuccess();
         } catch (TransformerException e) {
             return Result.fail(e);
         }
