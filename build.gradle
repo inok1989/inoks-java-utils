@@ -9,43 +9,52 @@ buildscript {
 }
 
 plugins {
+    id "java"
+    id "jacoco"
     id "org.sonarqube" version "2.6.2"
+    id "com.bmuschko.nexus" version "2.3.1"
+    id "com.github.kt3k.coveralls" version "2.8.2"
 }
 
-apply plugin: 'java'
-apply plugin: 'com.bmuschko.nexus'
-apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'jacoco'
-
 group = 'de.kgrupp'
+ext.moduleName = 'inoks.java.utils'
 def versionStr = System.properties['inoks.java.utils.version']
 version = !versionStr ? "LOCAL-VERSION" : versionStr
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/groups/public"
+    }
 }
 
 dependencies {
-    compile 'de.kgrupp:inoks-java-monads:0.5.2.13'
+    implementation 'de.kgrupp:inoks-java-monads:0.7.1.1'
 
-    compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '15.0'
 
-    compile 'javax.xml.bind:jaxb-api:2.2.11'
-    compile 'com.sun.xml.bind:jaxb-core:2.2.11'
-    compile 'com.sun.xml.bind:jaxb-impl:2.2.11'
-    compile 'javax.activation:activation:1.1.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.8'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.9.8'
 
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
-    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.4.0'
-    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.9.6'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
+}
 
-    compileOnly 'org.projectlombok:lombok:1.18.0'
-    testCompileOnly 'org.projectlombok:lombok:1.18.0'
+compileJava {
+    inputs.property('moduleName', moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath
+        ]
+        classpath = files()
+    }
+}
 
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.2.0'
-    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.2.0'
+javadoc {
+    options.addStringOption('-module-path', classpath.asPath)
 }
 
 allprojects {
@@ -60,6 +69,10 @@ allprojects {
 
 test {
     useJUnitPlatform()
+
+    filter {
+        exclude '**/module-info.class'
+    }
 }
 
 sonarqube {

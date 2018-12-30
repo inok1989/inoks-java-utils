@@ -1,17 +1,17 @@
 package de.kgrupp.inoksjavautils.resbundle;
 
-import lombok.extern.java.Log;
-
 import java.time.LocalTime;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Konstantin
  */
-@Log
 public class IJUResourceBundle<T extends KeyProvider> {
+
+    private static final Logger log = Logger.getLogger(IJUResourceBundle.class.getName());
 
     private final ResourceBundle resourceBundle;
 

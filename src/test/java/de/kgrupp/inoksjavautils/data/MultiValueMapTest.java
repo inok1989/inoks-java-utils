@@ -1,7 +1,5 @@
 package de.kgrupp.inoksjavautils.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,17 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MultiValueMapTest {
 
-    @Data
-    @AllArgsConstructor
-    private static class MyClass {
-
-        private int key;
-        private String value;
-    }
-
-    private static final MyClass V1 = new MyClass(1, "V1");
-    private static final MyClass V2 = new MyClass(2, "V2");
-    private static final MyClass V3 = new MyClass(1, "V3");
+    private static final MyClass V1 = new MyClass(1);
+    private static final MyClass V2 = new MyClass(2);
+    private static final MyClass V3 = new MyClass(1);
     private static final List<MyClass> LIST = Arrays.asList(V1, V2, V3);
 
     private MultiValueMap<Integer, MyClass, List<MyClass>> defaultMap;
@@ -74,5 +64,18 @@ class MultiValueMapTest {
         assertTrue(result2.contains(V2));
 
         assertTrue(map.get(3).isEmpty());
+    }
+
+    private static class MyClass {
+
+        private int key;
+
+        public MyClass(int key) {
+            this.key = key;
+        }
+
+        public int getKey() {
+            return key;
+        }
     }
 }

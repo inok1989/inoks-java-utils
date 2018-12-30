@@ -3,23 +3,14 @@ package de.kgrupp.inoksjavautils.transform;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import de.kgrupp.monads.result.Result;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
+
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JsonUtilsTest {
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    private static class MyClass {
-        private int anInt;
-        private double someDouble;
-    }
 
     private static final MyClass EXAMPLE = new MyClass(1, 1.0);
     private static final String EXAMPLE_STRING = "{\"anInt\":1,\"someDouble\":1.0}";
@@ -68,5 +59,49 @@ class JsonUtilsTest {
     void convertToObjectUseDefaultOnErrorDefaultUsed() {
         final MyClass result = JsonUtils.convertToObjectUseDefaultOnError("{", MyClass.class, EXAMPLE);
         assertEquals(EXAMPLE, result);
+    }
+
+    private static class MyClass {
+        private int anInt;
+        private double someDouble;
+
+        public MyClass() {
+            // for serialization
+        }
+
+        public MyClass(int anInt, double someDouble) {
+            this.anInt = anInt;
+            this.someDouble = someDouble;
+        }
+
+        public int getAnInt() {
+            return anInt;
+        }
+
+        public void setAnInt(int anInt) {
+            this.anInt = anInt;
+        }
+
+        public double getSomeDouble() {
+            return someDouble;
+        }
+
+        public void setSomeDouble(double someDouble) {
+            this.someDouble = someDouble;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MyClass myClass = (MyClass) o;
+            return anInt == myClass.anInt &&
+                    Double.compare(myClass.someDouble, someDouble) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(anInt, someDouble);
+        }
     }
 }

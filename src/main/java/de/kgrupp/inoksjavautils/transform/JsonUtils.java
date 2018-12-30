@@ -3,16 +3,16 @@ package de.kgrupp.inoksjavautils.transform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.kgrupp.monads.result.Result;
-import lombok.extern.java.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
-@Log
 public final class JsonUtils {
 
+    private static final Logger log = Logger.getLogger(JsonUtils.class.getName());
 
     private JsonUtils() {
         // utility class
@@ -54,7 +54,7 @@ public final class JsonUtils {
     }
 
     public static ObjectMapper getObjectMapper() {
-        return new ObjectMapper().registerModules(new JodaModule(), new JSR310Module());
+        return new ObjectMapper().registerModules(new JodaModule(), new JavaTimeModule());
     }
 
 }
