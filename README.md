@@ -5,14 +5,16 @@
 [![Javadocs](http://www.javadoc.io/badge/de.kgrupp/inoks-java-utils.svg)](http://www.javadoc.io/doc/de.kgrupp/inoks-java-utils)
 
 # inoks-java-utils
-A set of java classes which are helpful for developing with java 8
+A set of java classes which are helpful for developing with java.
+
+Since 0.8.0.1 supports only Java 11 and higher.
 
 ## Download
 
 Download from [Maven Central][maven] or depend via Gradle:
 
 ```gradle
-compile 'de.kgrupp:inoks-java-utils:0.7.1.1'
+implementation 'de.kgrupp:inoks-java-utils:0.8.0.1'
 ```
 
 Snapshots of the development version are available in [Sonatype's snapshots repository][snapshots].
