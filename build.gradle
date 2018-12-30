@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.kgrupp:inoks-java-monads:0.7.1.1'
+    compile group: 'de.kgrupp', name: 'inoks-java-monads', version: '0.7.1.1'
 
     implementation group: 'org.jetbrains', name: 'annotations', version: '15.0'
 

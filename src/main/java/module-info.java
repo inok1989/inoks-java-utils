@@ -1,5 +1,5 @@
 module inoks.java.utils {
-    requires inoks.java.monads;
+    requires transitive inoks.java.monads;
 
     requires java.logging;
     requires java.xml;
