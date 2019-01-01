@@ -18,26 +18,26 @@ class XmlReadWriteUtilsTest {
     @Test
     void read() {
         Result<Document> result = XmlReadWriteUtils.read(getFileInPackage("example.xml"));
-        result.consumeOrFail(this::assertExampleXml);
+        result.consumeOrThrow(this::assertExampleXml);
     }
 
     @Test
     void readInvalidXml() {
         Result<Document> result = XmlReadWriteUtils.read(getFileInPackage("invalid-xml.xml"));
         assertTrue(result.isInternalError());
-        assertEquals(SAXParseException.class, result.getThrowable().getClass());
+        assertEquals(SAXParseException.class, result.getException().getClass());
     }
 
     @Test
     void readSafe() {
         Result<Document> result = XmlReadWriteUtils.readSafe(getFileInPackage("example.xml"));
-        result.consumeOrFail(this::assertExampleXml);
+        result.consumeOrThrow(this::assertExampleXml);
     }
 
     @Test
     void readSafeFileMissing() {
         Result<Document> result = XmlReadWriteUtils.readSafe(new File(getFileInPackage("").getAbsoluteFile() + "/file-missing.xml"));
-        result.consumeOrFail(document -> assertEquals(0, document.getChildNodes().getLength()));
+        result.consumeOrThrow(document -> assertEquals(0, document.getChildNodes().getLength()));
     }
 
     @Test
@@ -49,34 +49,34 @@ class XmlReadWriteUtilsTest {
 
     @Test
     void write() {
-        XmlReadWriteUtils.read(getFileInPackage("example.xml")).consumeOrFail(document -> {
+        XmlReadWriteUtils.read(getFileInPackage("example.xml")).consumeOrThrow(document -> {
             assertExampleXml(document);
             final File newFile = new File(getFileInPackage("").getAbsoluteFile() + "/new-file-" + Math.random() + ".xml");
             Result<Void> result = XmlReadWriteUtils.write(document, newFile);
             assertTrue(result.isSuccess());
-            XmlReadWriteUtils.read(newFile).consumeOrFail(this::assertExampleXml);
+            XmlReadWriteUtils.read(newFile).consumeOrThrow(this::assertExampleXml);
         });
     }
 
     @Test
     void writeFails() {
-        XmlReadWriteUtils.read(getFileInPackage("example.xml")).consumeOrFail(document -> {
+        XmlReadWriteUtils.read(getFileInPackage("example.xml")).consumeOrThrow(document -> {
             assertExampleXml(document);
             final File newFile = new File(getFileInPackage("").getAbsoluteFile() + "/new-folder-" + Math.random() + "/new-example.xml");
             Result<Void> result = XmlReadWriteUtils.write(document, newFile);
             assertTrue(result.isInternalError());
-            assertEquals(TransformerException.class, result.getThrowable().getClass());
+            assertEquals(TransformerException.class, result.getException().getClass());
         });
     }
 
     @Test
     void writeSafe() {
-        XmlReadWriteUtils.read(getFileInPackage("example.xml")).consumeOrFail(document -> {
+        XmlReadWriteUtils.read(getFileInPackage("example.xml")).consumeOrThrow(document -> {
             assertExampleXml(document);
             final File newFile = new File(getFileInPackage("").getAbsoluteFile() + "/new-folder-" + Math.random() + "/new-example.xml");
             Result<Void> result = XmlReadWriteUtils.writeSafe(document, newFile);
             assertTrue(result.isSuccess());
-            XmlReadWriteUtils.read(newFile).consumeOrFail(this::assertExampleXml);
+            XmlReadWriteUtils.read(newFile).consumeOrThrow(this::assertExampleXml);
         });
     }
 

@@ -27,7 +27,7 @@ class JsonUtilsTest {
             // no fields and converting should fail
         });
         assertTrue(result.isInternalError());
-        assertEquals(InvalidDefinitionException.class, result.getThrowable().getClass());
+        assertEquals(InvalidDefinitionException.class, result.getException().getClass());
     }
 
     @Test
@@ -40,7 +40,7 @@ class JsonUtilsTest {
     void convertToObjectFail() {
         final Result<MyClass> result = JsonUtils.convertToObject("{", MyClass.class);
         assertTrue(result.isInternalError());
-        assertEquals(JsonEOFException.class, result.getThrowable().getClass());
+        assertEquals(JsonEOFException.class, result.getException().getClass());
     }
 
     @Test

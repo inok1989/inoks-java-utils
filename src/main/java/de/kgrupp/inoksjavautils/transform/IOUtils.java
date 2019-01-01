@@ -25,7 +25,7 @@ public final class IOUtils {
             }
             return Result.of(result.toString(StandardCharsets.UTF_8.name()));
         } catch (IOException e) {
-            return Result.fail(e);
+            return Result.fail("Converting InputStream to String failed.", e);
         }
     }
 
@@ -33,7 +33,7 @@ public final class IOUtils {
         try {
             return Result.of(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8.name())));
         } catch (UnsupportedEncodingException e) {
-            return Result.fail(e);
+            return Result.fail(String.format("Converting String to InputStream failed for '%s'.", string), e);
         }
     }
 

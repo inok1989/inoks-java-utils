@@ -23,7 +23,7 @@ public final class JsonUtils {
         try {
             return Result.of(mapper.writeValueAsString(object));
         } catch (JsonProcessingException e) {
-            return Result.fail(e);
+            return Result.fail(String.format("Converting object to json string failed for '%s'", object), e);
         }
     }
 
@@ -36,7 +36,7 @@ public final class JsonUtils {
         try {
             return Result.of(mapper.readValue(jsonString, clazz));
         } catch (IOException e) {
-            return Result.fail(e);
+            return Result.fail(String.format("Converting json to object %s failed for '%s'.", clazz.getName(), jsonString), e);
         }
     }
 

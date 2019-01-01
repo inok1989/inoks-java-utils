@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * @author Konstantin
@@ -30,6 +31,7 @@ public final class XmlReadWriteUtils {
     }
 
     public static Result<Document> read(File file) {
+        Objects.requireNonNull(file);
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -37,11 +39,12 @@ public final class XmlReadWriteUtils {
             InputStream stream = new ByteArrayInputStream(data);
             return Result.of(builder.parse(stream));
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            return Result.fail(e);
+            return Result.fail(String.format("Reading file '%s'", file.getName()), e);
         }
     }
 
     public static Result<Document> readSafe(File file) {
+        Objects.requireNonNull(file);
         if (file.exists()) {
             return read(file);
         } else {
@@ -55,7 +58,7 @@ public final class XmlReadWriteUtils {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             return Result.of(docBuilder.newDocument());
         } catch (ParserConfigurationException e) {
-            return Result.fail(e);
+            return Result.fail("Creating empty document failed.", e);
         }
     }
 
@@ -70,7 +73,7 @@ public final class XmlReadWriteUtils {
             transformer.transform(source, result);
             return Result.emptySuccess();
         } catch (TransformerException e) {
-            return Result.fail(e);
+            return Result.fail("Writing document failed.", e);
         }
     }
 
